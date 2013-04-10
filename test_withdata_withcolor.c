@@ -12,13 +12,14 @@
 struct pixel
 {
 	unsigned char red, green, blue;
-} rgbImage[CAMERA_WIDTH * CAMERA_HEIGHT];
+};
 
 GtkWidget *image;
 FILE *file;
 //int count = 0;
 char buff[20];
 float buffer[SAMP_RATE];
+struct pixel *rgbImage;
 
 
 
@@ -70,6 +71,7 @@ int main( int argc, char *argv[])
 {
     GtkWidget *window;
 	int i, j, k;
+	rgbImage = malloc(sizeof(struct pixel) * (CAMERA_WIDTH*CAMERA_HEIGHT));
 
 	file = fopen("test_files/chirpFFT.txt", "r");	//open file
 

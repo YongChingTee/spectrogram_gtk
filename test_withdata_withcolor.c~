@@ -55,9 +55,9 @@ int shift()
 	
 	for(i = CAMERA_HEIGHT-AXIS_START-1; i>=0 ; i--)
 	{		
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].blue = MIN((MAX((4*(0.75-buffer[i])), 0.)), 1.) * 255;
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].red = MIN((MAX((4*(buffer[i]-0.25)), 0.)), 1.) * 255;
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].green = MIN((MAX((4*fabs(buffer[i]-0.5)-1.), 0.)), 1.) * 255;
+		rgbImage[i*CAMERA_WIDTH+AXIS_START].blue = MIN((MAX((4*(0.75-buffer[i])), 0.)), 1.) * 255;
+		rgbImage[i*CAMERA_WIDTH+AXIS_START].red = MIN((MAX((4*(buffer[i]-0.25)), 0.)), 1.) * 255;
+		rgbImage[i*CAMERA_WIDTH+AXIS_START].green = MIN((MAX((4*fabs(buffer[i]-0.5)-1.), 0.)), 1.) * 255;
 	}
 	//count++;
 	

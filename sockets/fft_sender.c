@@ -55,13 +55,15 @@ int main(int argc, char *argv[])
     struct sockaddr_in serv_addr;
     struct hostent *server;
 
-	file = fopen("chirpFFT.txt", "r");	//open file
+	
+	file = fopen("dataPiano.txt", "r");	//open file
 
 	if(file == NULL)
 	{
 		printf("ERROR! no file");
 		system("pause");
 	}
+	
 
     // char buffer[256];
     //~ if (argc < 3) {
@@ -139,11 +141,31 @@ int main(int argc, char *argv[])
         if (n < 0) 
              error("ERROR writing to socket");
         
-        for(j = 0; j < 256; j++){
+        for(i = 0 ; i < 256; i++)
+		{
 			if(feof(file))
 				fbuffer[i] = 0;
 			else
-           		fscanf(file, "%f", &fbuffer[i]);
+				fscanf(file, "%f", &fbuffer[i]);
+		}
+        n = write(sockfd, fbuffer, ptsPerFFT * sizeof(float));
+        if (n < 0) 
+             error("ERROR writing to socket");
+
+        //~ if(i == 2) endTrans = 1;
+        //~ printf("endTrans is %d\n", endTrans);
+    }
+	/*
+	for(i = 0; i < 1000; i++){
+        
+        //~ init_fft(bytesToNextHeader++, samplesToNextFFT+=2, ptsPerFFT, sampFreq, 
+                    //~ endTrans);
+        n = write(sockfd, (char *) hdr, header_len);
+        if (n < 0) 
+             error("ERROR writing to socket");
+        
+        for(j = 0; j < 256; j++){
+           fbuffer[j] = 0.001*i;
         }
         n = write(sockfd, fbuffer, ptsPerFFT * sizeof(float));
         if (n < 0) 
@@ -154,6 +176,7 @@ int main(int argc, char *argv[])
         //~ if(i == 2) endTrans = 1;
         //~ printf("endTrans is %d\n", endTrans);
     }
+	*/
 
 	///////////////////////////////////////////////////////////////////////////////////////////
     

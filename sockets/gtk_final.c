@@ -55,7 +55,7 @@ int shift()
         if (n < 0)
             error("ERROR reading from socket");
         else if (n > 0){
-			printf("header.constSync is %X\n", header.constSync);
+			//printf("header.constSync is %X\n", header.constSync);
         // printf("header_len is %d\n", sizeof(struct fft_header));
 
 			if(header.constSync != 0xACFDFFBC)

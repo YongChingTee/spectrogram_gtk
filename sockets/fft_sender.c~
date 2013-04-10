@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 
     // printf("header_len is %d\n", header_len);
 
-    while(1){
+    while(!feof(file)){
         
         //~ init_fft(bytesToNextHeader++, samplesToNextFFT+=2, ptsPerFFT, sampFreq, 
                     //~ endTrans);

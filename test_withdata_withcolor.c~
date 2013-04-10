@@ -4,7 +4,7 @@
 #include <gtk/gtk.h>
 #include <math.h>
 
-#define AXIS_START 21
+#define AXIS_START 0
 #define SAMP_RATE 256
 #define CAMERA_WIDTH 1024
 #define CAMERA_HEIGHT (SAMP_RATE+AXIS_START)
@@ -37,7 +37,7 @@ int shift()
 	
 	for(j=0; j<CAMERA_HEIGHT-AXIS_START; j++)
 	{
-		for(i = CAMERA_WIDTH-1; i >=AXIS_START+2; i--)
+		for(i = CAMERA_WIDTH-1; i >=AXIS_START+1; i--)
 		{
 			rgbImage[j*CAMERA_WIDTH+i] = rgbImage[j*CAMERA_WIDTH+i-1];
 		}
@@ -71,7 +71,7 @@ int main( int argc, char *argv[])
     GtkWidget *window;
 	int i, j, k;
 
-	file = fopen("chirpFFT.txt", "r");	//open file
+	file = fopen("test_files/chirpFFT.txt", "r");	//open file
 
 	if(file == NULL)
 	{
@@ -82,7 +82,7 @@ int main( int argc, char *argv[])
 	//gtk initialization
     gtk_init(&argc, &argv);
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "Image2");
+    gtk_window_set_title(GTK_WINDOW(window), "Spectrogram");
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
     gtk_container_set_border_width(GTK_CONTAINER(window), 2);
     image = gtk_image_new();
@@ -92,6 +92,7 @@ int main( int argc, char *argv[])
 	
 	
 	//AXIS
+	/*
 	for(i = 0; i< CAMERA_HEIGHT; i++)
 	{		
 		rgbImage[i*CAMERA_WIDTH + AXIS_START].red = 255;
@@ -105,6 +106,7 @@ int main( int argc, char *argv[])
 		rgbImage[i+(CAMERA_HEIGHT-AXIS_START)*CAMERA_WIDTH].green = 255;
 		rgbImage[i+(CAMERA_HEIGHT-AXIS_START)*CAMERA_WIDTH].blue = 255;
 	}
+	*/
 
 	for(j = 0; j < CAMERA_WIDTH-AXIS_START; j++)
 	{

@@ -4,7 +4,7 @@
 #include <gtk/gtk.h>
 #include <math.h>
 
-#define AXIS_START 21
+#define AXIS_START 0
 #define SAMP_RATE 256
 #define CAMERA_WIDTH 1024
 #define CAMERA_HEIGHT (SAMP_RATE+AXIS_START)
@@ -37,7 +37,7 @@ int shift()
 	
 	for(j=0; j<CAMERA_HEIGHT-AXIS_START; j++)
 	{
-		for(i = CAMERA_WIDTH-1; i >=AXIS_START+2; i--)
+		for(i = CAMERA_WIDTH-1; i >=AXIS_START+1; i--)
 		{
 			rgbImage[j*CAMERA_WIDTH+i] = rgbImage[j*CAMERA_WIDTH+i-1];
 		}
@@ -55,9 +55,9 @@ int shift()
 	
 	for(i = CAMERA_HEIGHT-AXIS_START-1; i>=0 ; i--)
 	{		
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].blue = MIN((MAX((4*(0.75-buffer[i])), 0.)), 1.) * 255;
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].red = MIN((MAX((4*(buffer[i]-0.25)), 0.)), 1.) * 255;
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].green = MIN((MAX((4*fabs(buffer[i]-0.5)-1.), 0.)), 1.) * 255;
+		rgbImage[i*CAMERA_WIDTH+AXIS_START].blue = MIN((MAX((4*(0.75-buffer[i])), 0.)), 1.) * 255;
+		rgbImage[i*CAMERA_WIDTH+AXIS_START].red = MIN((MAX((4*(buffer[i]-0.25)), 0.)), 1.) * 255;
+		rgbImage[i*CAMERA_WIDTH+AXIS_START].green = MIN((MAX((4*fabs(buffer[i]-0.5)-1.), 0.)), 1.) * 255;
 	}
 	//count++;
 	
@@ -71,7 +71,7 @@ int main( int argc, char *argv[])
     GtkWidget *window;
 	int i, j, k;
 
-	file = fopen("chirpFFT.txt", "r");	//open file
+	file = fopen("test_files/chirpFFT.txt", "r");	//open file
 
 	if(file == NULL)
 	{
@@ -92,6 +92,7 @@ int main( int argc, char *argv[])
 	
 	
 	//AXIS
+	/*
 	for(i = 0; i< CAMERA_HEIGHT; i++)
 	{		
 		rgbImage[i*CAMERA_WIDTH + AXIS_START].red = 255;
@@ -105,6 +106,7 @@ int main( int argc, char *argv[])
 		rgbImage[i+(CAMERA_HEIGHT-AXIS_START)*CAMERA_WIDTH].green = 255;
 		rgbImage[i+(CAMERA_HEIGHT-AXIS_START)*CAMERA_WIDTH].blue = 255;
 	}
+	*/
 
 	for(j = 0; j < CAMERA_WIDTH-AXIS_START; j++)
 	{

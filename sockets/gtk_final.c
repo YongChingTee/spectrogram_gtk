@@ -10,22 +10,23 @@
 #include "fft_socket_header.h"
 
 #define AXIS_START 21
-//#define SAMP_RATE 256
 #define CAMERA_WIDTH 1024
-#define CAMERA_HEIGHT (SAMP_RATE+AXIS_START)
-
-struct pixel
-{
-	unsigned char red, green, blue;
-} rgbImage[CAMERA_WIDTH * CAMERA_HEIGHT];
 
 GtkWidget *image;
 char buff[20];
 float *buffer;
-int SAMP_RATE;
+int samp_rate;
+int CAMERA_HEIGHT;
+int port_num;
 
 struct fft_header header;
 
+struct pixel
+{
+	unsigned char red, green, blue;
+};
+
+struct pixel* rgbImage;
 
 void error(const char *msg)
 {
@@ -45,7 +46,7 @@ return 0;
 int shift()
 {
 	int i, j;
-	int sockfd, newsockfd, portno;
+	int sockfd, newsockfd;
     socklen_t clilen;
     // char buffer[256];
     struct sockaddr_in serv_addr, cli_addr;
@@ -54,11 +55,9 @@ int shift()
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
         error("ERROR opening socket");
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    portno = atoi(argv[1]);
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY; 
-    serv_addr.sin_port = htons(portno);
+    serv_addr.sin_port = htons(port_num);
     if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
            error("ERROR on binding");
     listen(sockfd,5);
@@ -77,11 +76,11 @@ int shift()
     if(header.constSync != 0xACFDFFBC)
             error("ERROR reading from socket, incorrect header placement\n");
 
-	n = read(newsockfd, (char *) buffer, SAMP_RATE * sizeof(float));
+	n = read(newsockfd, (char *) buffer, samp_rate * sizeof(float));
    	if (n < 0)
         error("ERROR reading from socket");
 	close(newsockfd);
-    close(sockfd)
+    close(sockfd);
 	/*END*/
 
 	/*shifting data in pixbuff*/
@@ -110,7 +109,7 @@ int main(int argc, char *argv[])
 {
     GtkWidget *window;
 	int i, j, k;
-	int sockfd, newsockfd, portno;
+	int sockfd, newsockfd;
     socklen_t clilen;
 	int n;
     // char buffer[256];
@@ -137,10 +136,10 @@ int main(int argc, char *argv[])
     if (sockfd < 0)
         error("ERROR opening socket");
     bzero((char *) &serv_addr, sizeof(serv_addr));
-    portno = atoi(argv[1]);
+    port_num = atoi(argv[1]);
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY; 
-    serv_addr.sin_port = htons(portno);
+    serv_addr.sin_port = htons(port_num);
     if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
         error("ERROR on binding");
     listen(sockfd,5);
@@ -162,12 +161,12 @@ int main(int argc, char *argv[])
     close(sockfd);
 	/*End*/
 	
-	SAMP_RATE = header.ptsPerFFT
-	buffer = malloc(sizeof(float) * SAMP_RATE);
+	samp_rate = header.ptsPerFFT;
+	CAMERA_HEIGHT = samp_rate + AXIS_START;
+	rgbImage = malloc(sizeof(struct pixel) * (CAMERA_HEIGHT+CAMERA_WIDTH));
+	buffer = malloc(sizeof(float) * samp_rate);
 
 	//gtk initialization
-    
-	
 	
 	//AXIS
 	for(i = 0; i< CAMERA_HEIGHT; i++)

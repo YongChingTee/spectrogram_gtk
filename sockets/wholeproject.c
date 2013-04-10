@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "fft_socket_header.h"
-#include "gtk_final.c"
+#include "gtk_final.c"s
 
 int numofsamples;
 

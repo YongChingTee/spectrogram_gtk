@@ -82,7 +82,7 @@ int main( int argc, char *argv[])
 	//gtk initialization
     gtk_init(&argc, &argv);
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "Spectrogram");
+    gtk_window_set_title(GTK_WINDOW(window), "Image2");
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
     gtk_container_set_border_width(GTK_CONTAINER(window), 2);
     image = gtk_image_new();

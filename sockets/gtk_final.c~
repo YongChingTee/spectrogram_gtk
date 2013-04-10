@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 	//loadeImage function
 	loadImage();
 	
-	//call shift every 1msec
+	//call shift every 10msec
 	gint func_ref = g_timeout_add(1, shift, NULL);
 	
 	gtk_main();

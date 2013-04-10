@@ -1,0 +1,19 @@
+#include <stdio.h>
+#include "fft_socket_header.h"
+#include "gtk_final.c"
+#include "server.c"
+#include "fft_sender.c"
+#include <unistd.h>
+#include <sys/types.h> 
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+struct fft_header * hdr;
+
+int main(int argc, char *argv[])
+{
+	fftheader* header;
+	//read from port
+	numofsamples = header->ptsPerFFT;
+	start(numofsamples);
+}

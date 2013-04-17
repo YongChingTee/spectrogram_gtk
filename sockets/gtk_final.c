@@ -50,22 +50,26 @@ return 0;
 int shift()
 {
 	int i, j;
-       
-    n = read(newsockfd, &header, sizeof(struct fft_header));
-        if (n < 0)
-            error("ERROR reading from socket");
-        else if (n > 0){
-			//printf("header.constSync is %X\n", header.constSync);
-        // printf("header_len is %d\n", sizeof(struct fft_header));
+	//newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+	//if(1)
+	
+		n = read(newsockfd, &header, sizeof(struct fft_header));
+		if (n < 0)
+		    error("ERROR reading from socket");
+		else if (n > 0)
+		{
+		//printf("header.constSync is %X\n", header.constSync);
+		// printf("header_len is %d\n", sizeof(struct fft_header));
 
-			if(header.constSync != 0xACFDFFBC)
-				error("ERROR reading from socket, incorrect header placement\n");
+		if(header.constSync != 0xACFDFFBC)
+			error("ERROR reading from socket, incorrect header placement\n");
 		}
 
-        n = read(newsockfd, (char *) buffer, header.ptsPerFFT * sizeof(float));
-        if (n < 0)
-            error("ERROR reading from socket");
+		n = read(newsockfd, (char *) buffer, header.ptsPerFFT * sizeof(float));
+		if (n < 0)
+		    error("ERROR reading from socket");
 	
+
 	/*END*/
 
 	/*shifting data in pixbuff*/
@@ -87,6 +91,7 @@ int shift()
 	
 	
 	loadImage();
+	
 	return 1;
 }
 
@@ -118,20 +123,22 @@ int main(int argc, char *argv[])
         error("ERROR on binding");
     listen(sockfd,5);
     clilen = sizeof(cli_addr);
+	
     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
     if (newsockfd < 0)
        error("ERROR on accept");
        
      n = read(newsockfd, &header, sizeof(struct fft_header));
-        if (n < 0)
-            error("ERROR reading from socket");
-        else if (n > 0){
-			printf("header.constSync is %X\n", header.constSync);
-        // printf("header_len is %d\n", sizeof(struct fft_header));
+     if (n < 0)
+        error("ERROR reading from socket");
+     else if (n > 0)
+	{
+		printf("header.constSync is %X\n", header.constSync);
+    	// printf("header_len is %d\n", sizeof(struct fft_header));
 
-			if(header.constSync != 0xACFDFFBC)
-				error("ERROR reading from socket, incorrect header placement\n");
-		}
+		if(header.constSync != 0xACFDFFBC)
+			error("ERROR reading from socket, incorrect header placement\n");
+	}
 
 	samp_rate = header.ptsPerFFT;
 	CAMERA_HEIGHT = samp_rate + AXIS_START;

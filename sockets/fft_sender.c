@@ -16,11 +16,10 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-#include "fft_sender.h"
+// #include "fft_sender.h"
 #include "fft_socket_header.h"
 
 struct fft_header * hdr;
-FILE *file;
 
 //void init_fft(int bytesToNextHeader, int samplesToNextFFT, int ptsPerFFT, 
 //		struct timeval timestamp, int sampFreq)
@@ -54,16 +53,6 @@ int main(int argc, char *argv[])
     int sockfd, portno, n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
-
-	
-	file = fopen("dataPiano.txt", "r");	//open file
-
-	if(file == NULL)
-	{
-		printf("ERROR! no file");
-		system("pause");
-	}
-	
 
     // char buffer[256];
     //~ if (argc < 3) {
@@ -101,7 +90,8 @@ int main(int argc, char *argv[])
 
     int bytesToNextHeader = 5;  // total amount of space (header+data)
     int samplesToNextFFT = 3;   // Num samples to the start of the next FFT
-    int ptsPerFFT = 256;         // number of points per FFT 
+    //int ptsPerFFT = 20;         // number of points per FFT 
+    srand(time(NULL)); int ptsPerFFT = (int) rand() % 20;         // number of points per FFT 
     int sampFreq = 4;
     int endTrans = -1;
     
@@ -133,30 +123,23 @@ int main(int argc, char *argv[])
 
     // printf("header_len is %d\n", header_len);
 
-    while(1){
-        
-        //~ init_fft(bytesToNextHeader++, samplesToNextFFT+=2, ptsPerFFT, sampFreq, 
-                    //~ endTrans);
-        n = write(sockfd, (char *) hdr, header_len);
-        if (n < 0) 
-             error("ERROR writing to socket");
-        
-        for(i = 0 ; i < 256; i++)
-		{
-			if(feof(file))
-				fbuffer[i] = 0;
-			else
-				fscanf(file, "%f", &fbuffer[i]);
-		}
-        n = write(sockfd, fbuffer, ptsPerFFT * sizeof(float));
-        if (n < 0) 
-             error("ERROR writing to socket");
+    // DO WE WANT TO SEND THE DATA IN MANY SEPERATE SOCKETS OR IN ONE BIG SOCKET?
 
-        //~ if(i == 2) endTrans = 1;
-        //~ printf("endTrans is %d\n", endTrans);
+
+    n = write(sockfd, (char *) hdr, header_len);
+    if (n < 0) 
+         error("ERROR writing to socket");
+    
+    // Generate random numbers to be sent each time.
+    srand(time(NULL));
+    for(i = 0; i < 256; i++){
+        fbuffer[i] = (float) rand() / (float) RAND_MAX;
     }
-	/*
-	for(i = 0; i < 1000; i++){
+    n = write(sockfd, fbuffer, ptsPerFFT * sizeof(float));
+        if (n < 0) 
+             error("ERROR writing to socket");
+    /*
+    for(i = 0; i < 3; i++){
         
         //~ init_fft(bytesToNextHeader++, samplesToNextFFT+=2, ptsPerFFT, sampFreq, 
                     //~ endTrans);
@@ -165,19 +148,18 @@ int main(int argc, char *argv[])
              error("ERROR writing to socket");
         
         for(j = 0; j < 256; j++){
-           fbuffer[j] = 0.001*i;
+           fbuffer[j] = 0.25*i;
         }
         n = write(sockfd, fbuffer, ptsPerFFT * sizeof(float));
         if (n < 0) 
              error("ERROR writing to socket");
 
-		printf("This is iteration %d\n", ++i);
+		printf("This is iteration %d\n", i+1);
 
         //~ if(i == 2) endTrans = 1;
         //~ printf("endTrans is %d\n", endTrans);
     }
-	*/
-
+    */
 	///////////////////////////////////////////////////////////////////////////////////////////
     
 

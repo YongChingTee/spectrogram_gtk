@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 
     // printf("header_len is %d\n", header_len);
 
-    while(1){
+    while(!feof(file)){
         
         //~ init_fft(bytesToNextHeader++, samplesToNextFFT+=2, ptsPerFFT, sampFreq, 
                     //~ endTrans);
@@ -143,20 +143,25 @@ int main(int argc, char *argv[])
         
         for(i = 0 ; i < 256; i++)
 		{
-			if(feof(file))
-				fbuffer[i] = 0;
-			else
-				fscanf(file, "%f", &fbuffer[i]);
+			fscanf(file, "%f", &fbuffer[i]);
 		}
         n = write(sockfd, fbuffer, ptsPerFFT * sizeof(float));
         if (n < 0) 
              error("ERROR writing to socket");
-
-		printf("This is iteration %d\n", ++i);
-
+		//usleep(10000);
         //~ if(i == 2) endTrans = 1;
         //~ printf("endTrans is %d\n", endTrans);
     }
+	n = write(sockfd, (char *) hdr, header_len);
+        if (n < 0) 
+             error("ERROR writing to socket");
+	for(i = 0; i < 256; i++)
+	{
+		fbuffer[i] = 0;
+	}
+	n = write(sockfd, fbuffer, ptsPerFFT * sizeof(float));
+        if (n < 0) 
+             error("ERROR writing to socket");
 	/*
 	for(i = 0; i < 1000; i++){
         

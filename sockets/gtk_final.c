@@ -3,6 +3,8 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include <math.h>
+#include <error.h>
+#include <errno.h>
 #include <unistd.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
@@ -11,6 +13,10 @@
 
 #define AXIS_START 0
 #define CAMERA_WIDTH 1024
+#define BLUEMAC(x) (MIN((MAX((4*(0.75-(x))), 0.)), 1.) * 255)
+#define REDMAC(x) (MIN((MAX((4*((x)-0.25)), 0.)), 1.) * 255)
+#define GREENMAC(x) (MIN((MAX((4*fabs((x)-0.5)-1.), 0.)), 1.) * 255)
+
 
 GtkWidget *image;
 char buff[20];
@@ -32,9 +38,10 @@ struct pixel
 
 struct pixel* rgbImage;
 
-void error(const char *msg)
+
+void error1(const char *msg)
 {
-    perror(msg);
+    fprintf(stderr, "%s: %s \n", msg, strerror(errno));
     exit(1);
 }
 
@@ -52,23 +59,32 @@ int shift()
 	int i, j;
 	//newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
 	//if(1)
-	
-		n = read(newsockfd, &header, sizeof(struct fft_header));
-		if (n < 0)
-		    error("ERROR reading from socket");
-		else if (n > 0)
-		{
-		//printf("header.constSync is %X\n", header.constSync);
+	fprintf(stderr, "Reading header... ");
+	n = read(newsockfd, &header, sizeof(struct fft_header));
+	if (n < 0)
+	    error1("ERROR reading from socket");
+	else if (n > 0)
+	{
+		printf("header.constSync is %X\n", header.constSync);
 		// printf("header_len is %d\n", sizeof(struct fft_header));
-
 		if(header.constSync != 0xACFDFFBC)
-			error("ERROR reading from socket, incorrect header placement\n");
-		}
+			error1("ERROR reading from socket, incorrect header placement\n");
+	}
+	else if( n == 0)
+	{
+		printf("Sender has closed connection\n");
+		exit(0);
+	}
 
-		n = read(newsockfd, (char *) buffer, header.ptsPerFFT * sizeof(float));
-		if (n < 0)
-		    error("ERROR reading from socket");
-	
+	fprintf(stderr, "Reading data... ");
+	n = read(newsockfd, (char *) buffer, header.ptsPerFFT * sizeof(float));
+	if (n < 0)
+	    error1("ERROR reading from socket");
+	else if( n == 0)
+	{
+		printf("Sender has closed connection\n");
+		exit(0);
+	}
 
 	/*END*/
 
@@ -83,9 +99,9 @@ int shift()
 	
 	for(i = CAMERA_HEIGHT-AXIS_START-1; i>=0 ; i--)
 	{		
-		rgbImage[i*CAMERA_WIDTH+AXIS_START].blue = MIN((MAX((4*(0.75-buffer[i])), 0.)), 1.) * 255;
-		rgbImage[i*CAMERA_WIDTH+AXIS_START].red = MIN((MAX((4*(buffer[i]-0.25)), 0.)), 1.) * 255;
-		rgbImage[i*CAMERA_WIDTH+AXIS_START].green = MIN((MAX((4*fabs(buffer[i]-0.5)-1.), 0.)), 1.) * 255;
+		rgbImage[i*CAMERA_WIDTH+AXIS_START].blue = BLUEMAC(buffer[i]);
+		rgbImage[i*CAMERA_WIDTH+AXIS_START].red = REDMAC(buffer[i]);
+		rgbImage[i*CAMERA_WIDTH+AXIS_START].green = GREENMAC(buffer[i]);
 	}
 	//count++;
 	
@@ -113,79 +129,73 @@ int main(int argc, char *argv[])
 	/*Initiate header*/
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
-        error("ERROR opening socket");
+        error1("ERROR opening socket");
     bzero((char *) &serv_addr, sizeof(serv_addr));
     port_num = 51717;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY; 
     serv_addr.sin_port = htons(port_num);
     if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-        error("ERROR on binding");
+        error1("ERROR on binding");
     listen(sockfd,5);
     clilen = sizeof(cli_addr);
 	
     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
     if (newsockfd < 0)
-       error("ERROR on accept");
-       
-     n = read(newsockfd, &header, sizeof(struct fft_header));
-     if (n < 0)
-        error("ERROR reading from socket");
-     else if (n > 0)
+       error1("ERROR on accept");
+	//First Header
+    fprintf(stderr, "Reading header... ");  
+    n = read(newsockfd, &header, sizeof(struct fft_header));
+    if (n < 0)
+       error1("ERROR reading from socket");
+    else if (n > 0)
 	{
 		printf("header.constSync is %X\n", header.constSync);
     	// printf("header_len is %d\n", sizeof(struct fft_header));
-
 		if(header.constSync != 0xACFDFFBC)
-			error("ERROR reading from socket, incorrect header placement\n");
+			error1("ERROR reading from socket, incorrect header placement\n");
+	}
+	else if( n == 0)
+	{
+		printf("Sender has closed connection\n");
+		exit(0);
 	}
 
+	//Initializing structures
 	samp_rate = header.ptsPerFFT;
 	CAMERA_HEIGHT = samp_rate + AXIS_START;
 	rgbImage = malloc(sizeof(struct pixel) * (CAMERA_HEIGHT*CAMERA_WIDTH));
 	buffer = malloc(sizeof(float) * samp_rate);
 
-        n = read(newsockfd, (char *) buffer, header.ptsPerFFT * sizeof(float));
-        if (n < 0)
-            error("ERROR reading from socket");
+	//First Data
+	fprintf(stderr, "Reading data... ");
+    n = read(newsockfd, (char *) buffer, header.ptsPerFFT * sizeof(float));
+    if (n < 0)
+    	error1("ERROR reading from socket");
+	else if( n == 0)
+	{
+		printf("Sender has closed connection\n");
+		exit(0);
+	}
 	
 	/*End*/
 	
-	
-
 	//gtk initialization
-	/*
-	//AXIS
-	for(i = 0; i< CAMERA_HEIGHT; i++)
-	{		
-		rgbImage[i*CAMERA_WIDTH + AXIS_START].red = 255;
-		rgbImage[i*CAMERA_WIDTH + AXIS_START].green = 255;
-		rgbImage[i*CAMERA_WIDTH + AXIS_START].blue = 255;
-	}
-	
-
-	for(i = 0; i< CAMERA_WIDTH; i++)
-	{		
-		rgbImage[i+(CAMERA_HEIGHT-AXIS_START)*CAMERA_WIDTH].red = 255;
-		rgbImage[i+(CAMERA_HEIGHT-AXIS_START)*CAMERA_WIDTH].green = 255;
-		rgbImage[i+(CAMERA_HEIGHT-AXIS_START)*CAMERA_WIDTH].blue = 255;
-	}
-	*/
 	/*Initialize screen with color*/
 	for(j = 0; j < CAMERA_WIDTH-AXIS_START; j++)
 	{
 		for(i = CAMERA_HEIGHT-AXIS_START-1; i>=0 ; i--)
 		{		
-			rgbImage[j+i*CAMERA_WIDTH+AXIS_START+1].blue = MIN((MAX((4*(0.75-0)), 0.)), 1.) * 255;
-			rgbImage[j+i*CAMERA_WIDTH+AXIS_START+1].red = MIN((MAX((4*(0-0.25)), 0.)), 1.) * 255;
-			rgbImage[j+i*CAMERA_WIDTH+AXIS_START+1].green = MIN((MAX((4*fabs(0-0.5)-1.), 0.)), 1.) * 255;
+			rgbImage[j+i*CAMERA_WIDTH+AXIS_START+1].blue = BLUEMAC(0);
+			rgbImage[j+i*CAMERA_WIDTH+AXIS_START+1].red = REDMAC(0);
+			rgbImage[j+i*CAMERA_WIDTH+AXIS_START+1].green = GREENMAC(0);
 		}
 	}
 	for(i = CAMERA_HEIGHT-AXIS_START-1; i>=0 ; i--)
 	{		
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].blue = MIN((MAX((4*(0.75-buffer[i])), 0.)), 1.) * 255;
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].red = MIN((MAX((4*(buffer[i]-0.25)), 0.)), 1.) * 255;
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].green = MIN((MAX((4*fabs(buffer[i]-0.5)-1.), 0.)), 1.) * 255;
+		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].blue = BLUEMAC(buffer[i]);
+		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].red = REDMAC(buffer[i]);
+		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].green = GREENMAC(buffer[i]);
 	}
 	
 	//loadeImage function

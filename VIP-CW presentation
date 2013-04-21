@@ -1,0 +1,14 @@
+VIP-CW presentation
+
+Audio Spectrogram
+Audio plays an important part in determining the quality of a video conference.
+
+Whats better than seeing the audio quality itself?
+
+One of the graphics user interface available within the Raspberry Pi is the GTK+
+
+In order to show the spectrogram of the audio, GTK+2.0 is being used to show a live, scrolling spectrogram of the incomming audio data.
+
+By giving color to the FFT data, the maginitude and the specific frequency of the incoming data can be seen visually, therefore the quality of the incoming audio can be determined very easily.
+
+Use picture in folder

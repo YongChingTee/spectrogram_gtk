@@ -5,9 +5,15 @@ Audio plays an important part in determining the quality of a video conference.
 
 Whats better than seeing the audio quality itself?
 
-One of the graphics user interface available within the Raspberry Pi is the GTK+
+One of the graphics user interface available within the Linux Operating system running in the Raspberry Pi, Raspbian is GTK+
 
 In order to show the spectrogram of the audio, GTK+2.0 is being used to show a live, scrolling spectrogram of the incomming audio data.
+
+GDKPixbuf obtains the image data from an array of unsigned chars which is updated whenever new data is obtained
+
+Then a GTKImage is obtained from the pixbuff.
+
+The image is then drawn in the GTK window.
 
 By giving color to the FFT data, the maginitude and the specific frequency of the incoming data can be seen visually, therefore the quality of the incoming audio can be determined very easily.
 

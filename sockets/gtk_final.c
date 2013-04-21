@@ -11,7 +11,7 @@
 #include <netinet/in.h>
 #include "fft_socket_header.h"
 
-#define AXIS_START 0
+//#define AXIS_START 0
 #define CAMERA_WIDTH 1024
 #define BLUEMAC(x) (MIN((MAX((4*(0.75-(x))), 0.)), 1.) * 255)
 #define REDMAC(x) (MIN((MAX((4*((x)-0.25)), 0.)), 1.) * 255)
@@ -89,7 +89,7 @@ int shift()
 	/*END*/
 
 	/*shifting data in pixbuff*/
-	for(j=0; j<CAMERA_HEIGHT-AXIS_START; j++)
+	for(j=0; j<CAMERA_HEIGHT; j++)
 	{
 		for(i = CAMERA_WIDTH-1; i >=1; i--)
 		{
@@ -97,17 +97,16 @@ int shift()
 		}
 	}
 	
-	for(i = CAMERA_HEIGHT-AXIS_START-1; i>=0 ; i--)
+	for(i = CAMERA_HEIGHT-1; i>=0 ; i--)
 	{		
-		rgbImage[i*CAMERA_WIDTH+AXIS_START].blue = BLUEMAC(buffer[i]);
-		rgbImage[i*CAMERA_WIDTH+AXIS_START].red = REDMAC(buffer[i]);
-		rgbImage[i*CAMERA_WIDTH+AXIS_START].green = GREENMAC(buffer[i]);
+		rgbImage[i*CAMERA_WIDTH].blue = BLUEMAC(buffer[i]);
+		rgbImage[i*CAMERA_WIDTH].red = REDMAC(buffer[i]);
+		rgbImage[i*CAMERA_WIDTH].green = GREENMAC(buffer[i]);
 	}
 	//count++;
 	
 	
 	loadImage();
-	
 	return 1;
 }
 
@@ -163,7 +162,7 @@ int main(int argc, char *argv[])
 
 	//Initializing structures
 	samp_rate = header.ptsPerFFT;
-	CAMERA_HEIGHT = samp_rate + AXIS_START;
+	CAMERA_HEIGHT = samp_rate;
 	rgbImage = malloc(sizeof(struct pixel) * (CAMERA_HEIGHT*CAMERA_WIDTH));
 	buffer = malloc(sizeof(float) * samp_rate);
 
@@ -182,20 +181,20 @@ int main(int argc, char *argv[])
 	
 	//gtk initialization
 	/*Initialize screen with color*/
-	for(j = 0; j < CAMERA_WIDTH-AXIS_START; j++)
+	for(j = 0; j < CAMERA_WIDTH; j++)
 	{
-		for(i = CAMERA_HEIGHT-AXIS_START-1; i>=0 ; i--)
+		for(i = CAMERA_HEIGHT-1; i>=0 ; i--)
 		{		
-			rgbImage[j+i*CAMERA_WIDTH+AXIS_START+1].blue = BLUEMAC(0);
-			rgbImage[j+i*CAMERA_WIDTH+AXIS_START+1].red = REDMAC(0);
-			rgbImage[j+i*CAMERA_WIDTH+AXIS_START+1].green = GREENMAC(0);
+			rgbImage[j+i*CAMERA_WIDTH].blue = BLUEMAC(0);
+			rgbImage[j+i*CAMERA_WIDTH].red = REDMAC(0);
+			rgbImage[j+i*CAMERA_WIDTH].green = GREENMAC(0);
 		}
 	}
-	for(i = CAMERA_HEIGHT-AXIS_START-1; i>=0 ; i--)
+	for(i = CAMERA_HEIGHT-1; i>=0 ; i--)
 	{		
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].blue = BLUEMAC(buffer[i]);
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].red = REDMAC(buffer[i]);
-		rgbImage[i*CAMERA_WIDTH+AXIS_START+1].green = GREENMAC(buffer[i]);
+		rgbImage[i*CAMERA_WIDTH].blue = BLUEMAC(buffer[i]);
+		rgbImage[i*CAMERA_WIDTH].red = REDMAC(buffer[i]);
+		rgbImage[i*CAMERA_WIDTH].green = GREENMAC(buffer[i]);
 	}
 	
 	//loadeImage function
